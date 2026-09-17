@@ -50,6 +50,37 @@ is named. Anything still open is listed at the end.
      `warnings 0`, `submitted 4`, `indexed 0`. Google fetched it; nothing is indexed yet and none is
      claimed.
 
+## Mail records (added 2026-09-18)
+
+Following the working pattern on `findkeybpm.com`, which receives through Spaceship forwarding
+while its DNS lives on Cloudflare, the same records were added to this zone:
+
+| Type | Name | Content | Priority |
+| --- | --- | --- | --- |
+| MX | `exportframes.com` | `mx1.efwd.spaceship.net` | 10 |
+| MX | `exportframes.com` | `mx2.efwd.spaceship.net` | 20 |
+| TXT | `exportframes.com` | `v=spf1 include:spf.efwd.spaceship.net ~all` | — |
+
+Receiving needs only the alias to exist at Spaceship. Sending *as* the address is a separate,
+later job (Brevo SMTP + Gmail send-as was how findkeybpm did it).
+
+## What the sibling sites actually do (checked 2026-09-18)
+
+Looked at how the other sites in this workspace handle the same two problems, before choosing a
+route here:
+
+- **Mail**: `findkeybpm.com` publishes `contact@findkeybpm.com` and receives it through Spaceship
+  forwarding. `mychordfinder.com` publishes `contact@mychordfinder.com` but its zone has **no MX
+  record at all**, so that address cannot currently receive mail.
+- **Measurement**: the account has five Cloudflare Web Analytics sites
+  (`dressmaker.wiki`, `honeycombworldbeyond.wiki`, `mistriafans.com`, `mychordfinder.com`,
+  `tinyeden.wiki`), all with `auto_install: true`. Fetching those four live domains returns **no
+  `cloudflareinsights` beacon in the served HTML**, and every Pages project in the account has
+  `build_config.web_analytics_tag: null` — the field Cloudflare uses to inject the beacon into a
+  Pages site. So the existing Web Analytics sites are not collecting anything today. `watchtotext.com`
+  ships Google Tag Manager instead, and `mychordfinder.com` runs consent-gated GA4 from its bundle.
+  This is why the beacon is being wired manually here rather than relying on auto-install.
+
 ## Verified after launch
 
 Through Chrome (Playwright, `--host-resolver-rules` used only to bypass this Mac's stale negative
@@ -76,8 +107,8 @@ returned the correct `<title>`, and directly against both Cloudflare anycast add
 
 | Item | Why it is open | What closes it |
 | --- | --- | --- |
-| Cloudflare Web Analytics | Neither API token in `~/.hermes/.env` may create a Web Analytics site (`POST /accounts/{id}/rum/site_info` → `Authentication error`). The five existing Web Analytics sites in the account are bound to other zones; reusing one of their tokens here would mix two sites' numbers. | Dashboard: Web Analytics → Add a site → pick `exportframes.com` (auto-install, as the other five use), **or** a token with Account → Web Analytics → Edit. Then the beacon snippet goes into the four pages. |
-| `contact@exportframes.com` | Email Routing is denied to both tokens (`/accounts/{id}/email/routing/addresses` and `/zones/{id}/email/routing` both `Authentication error`). The contact page therefore does not publish the address as working. | Dashboard: Email Routing on the `exportframes.com` zone → add the destination mailbox → click the verification mail → create the `contact@` rule. Then the address is added to the page. |
+| Cloudflare Web Analytics | Neither API token in `~/.hermes/.env` may create a Web Analytics site (`POST /accounts/{id}/rum/site_info` → `Authentication error`). The five existing sites are bound to other zones; reusing one of their tokens here would file this site's page views under another site. | Create the site for this zone in the dashboard (Web Analytics → Add a site → `exportframes.com`), **or** supply a token with Account → Web Analytics → Edit. The tag/token can then be read back through the RUM-read token that is already on this machine, and the beacon goes into the four pages. |
+| `contact@exportframes.com` | Spaceship's email *forwarding* has no public API (`docs.spaceship.dev` covers domains, DNS and contacts; alias management is dashboard-only), so the alias itself cannot be created from here. | Create the alias at Spaceship (domain → Email Forwarding → `contact@exportframes.com` → destination mailbox). The DNS side is already done, so nothing else is needed before the address is published. |
 | `www` → apex redirect | A Redirect Rule needs zone ruleset permission, which neither token has. `_redirects` in Pages cannot match on hostname, so it cannot do this either. Currently both hostnames serve the site and the canonical tag points at the apex. | A token with Zone → Rules, or one redirect rule in the dashboard. |
 | Git auto-deploy | Cloudflare's GitHub App installation for this account is broken (error `8000011`), so pushes do not build by themselves. | Reinstall the Cloudflare Pages GitHub App, then switch the project's source to the repo. |
 
