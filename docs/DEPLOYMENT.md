@@ -75,6 +75,23 @@ only" to **GA4 only**. What was done:
   page views only. The privacy page was rewritten to describe GA4, its cookies, its retention and the
   consent behaviour before this shipped.
 
+**Region-gated, changed 2026-09-18 (owner's rule: the gate should only appear where it is needed).**
+`functions/api/geo.js` returns `{"country":"XX"}` from `request.cf.country` — Cloudflare's own
+reading of the connection, so no third-party geolocation is involved and nothing about the
+visitor is sent anywhere. `analytics.js` asks it once per session, then:
+
+| Visitor country | Behaviour |
+| --- | --- |
+| EEA (EU 27, Iceland, Liechtenstein, Norway), UK, Switzerland | Consent notice; no Google request and no cookie until **Allow analytics** |
+| Any other known country | Measured without a notice (no prior consent required there) |
+| `XX` (Cloudflare could not tell, e.g. Tor) or the geo call fails | Falls back to asking |
+
+Tested locally against a mock geo endpoint before shipping: DE, FR, GB, CH → notice shown with 0
+Google requests before the choice; US, JP → no notice and measurement running; XX → notice; geo
+endpoint returning 500 → notice. The frame extractor still produced 6 stills with the notice on
+screen. (Local run 2026-09-18; the deployed behaviour was then checked through the live
+`/api/geo`.)
+
 Verified in Chrome against the built site (2026-09-18):
 
 | Check | Result |

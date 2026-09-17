@@ -1,29 +1,37 @@
-// Google Analytics 4 behind an explicit consent gate.
+// Google Analytics 4, gated only where a consent choice is actually required.
 //
-// Nothing is fetched, and no cookie is written, until the visitor chooses
-// "Allow analytics". The pattern matches the other sites in this workspace:
-// the choice is remembered in local storage, the tag loads lazily, query
-// strings are stripped from the reported page location, and ad personalisation
-// plus Google Signals are disabled for this measurement.
+// Visitors in the EEA, the United Kingdom and Switzerland get an explicit choice,
+// and nothing is fetched or stored until they make it. Elsewhere the measurement
+// runs without a banner, because those regions do not require prior consent for
+// this kind of analytics. The country comes from /api/geo, which Cloudflare
+// answers from the connection itself — no third-party lookup is involved.
 (function () {
   "use strict";
 
   var MEASUREMENT_ID = "G-X1L2MKTHPT";
   var CONSENT_KEY = "ef_analytics_consent";
+  var GEO_KEY = "ef_geo_country";
 
-  function readConsent() {
+  // EEA (EU 27 + Iceland, Liechtenstein, Norway), plus the UK and Switzerland.
+  var CONSENT_REGIONS = [
+    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
+    "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK",
+    "SI", "ES", "SE", "IS", "LI", "NO", "GB", "CH",
+  ];
+
+  function read(key, store) {
     try {
-      return localStorage.getItem(CONSENT_KEY);
+      return store.getItem(key);
     } catch (err) {
       return null;
     }
   }
 
-  function saveConsent(value) {
+  function write(key, value, store) {
     try {
-      localStorage.setItem(CONSENT_KEY, value);
+      store.setItem(key, value);
     } catch (err) {
-      // The choice still applies to this page when browser storage is unavailable.
+      // Storage unavailable: the choice still applies to this page.
     }
   }
 
@@ -31,7 +39,6 @@
     return location.origin + location.pathname;
   }
 
-  var allowed = readConsent() === "accepted";
   var loading = false;
 
   function queue() {
@@ -45,7 +52,7 @@
   }
 
   function loadTag() {
-    if (!allowed || loading) return;
+    if (loading) return;
     loading = true;
     var gtag = queue();
     gtag("js", new Date());
@@ -61,7 +68,7 @@
   }
 
   function ask() {
-    if (readConsent()) return;
+    if (read(CONSENT_KEY, localStorage)) return;
     var bar = document.createElement("aside");
     bar.className = "consent";
     bar.setAttribute("role", "region");
@@ -79,18 +86,53 @@
       var button = event.target.closest("[data-consent]");
       if (!button) return;
       var choice = button.getAttribute("data-consent");
-      saveConsent(choice);
-      allowed = choice === "accepted";
+      write(CONSENT_KEY, choice, localStorage);
       document.body.classList.remove("has-consent");
       bar.remove();
-      if (allowed) loadTag();
+      if (choice === "accepted") loadTag();
     });
   }
 
-  if (allowed) {
-    // Already allowed on an earlier visit: this page view counts too.
-    loadTag();
+  function start() {
+    if (!document.body) return;
+
+    var choice = read(CONSENT_KEY, localStorage);
+    if (choice === "accepted") {
+      loadTag();
+      return;
+    }
+    if (choice === "declined") return;
+
+    var cached = read(GEO_KEY, sessionStorage);
+    if (cached) {
+      if (CONSENT_REGIONS.indexOf(cached) === -1) loadTag();
+      else ask();
+      return;
+    }
+
+    fetch("/api/geo", { cache: "no-store" })
+      .then(function (response) {
+        if (!response.ok) throw new Error("geo unavailable");
+        return response.json();
+      })
+      .then(function (data) {
+        var country = data && data.country ? String(data.country).toUpperCase() : "";
+        // "XX" is Cloudflare's code for a country it could not determine (Tor, some
+        // VPN exits). An unknown location is treated like a place that needs asking.
+        var known = country.length === 2 && country !== "XX";
+        if (known) write(GEO_KEY, country, sessionStorage);
+        if (known && CONSENT_REGIONS.indexOf(country) === -1) loadTag();
+        else ask();
+      })
+      .catch(function () {
+        // Unknown location: fall back to asking, the safe reading of the rule.
+        ask();
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
   } else {
-    ask();
+    start();
   }
 })();

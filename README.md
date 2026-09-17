@@ -72,9 +72,12 @@ to that project, and zone-level **Always Use HTTPS** is on.
 - Decoding is whatever the visitor's browser already supports. The tool reports a
   clear error for containers it cannot play instead of guessing.
 - Measurement is Google Analytics 4 only (`public/analytics.js`, measurement ID
-  `G-X1L2MKTHPT`). It is behind an explicit consent gate: until the visitor presses
-  **Allow analytics**, no Google script is fetched and no cookie is written. Declining
-  is remembered and loads nothing. No other analytics or ad scripts are present, and
-  no Cloudflare Web Analytics beacon is installed.
+  `G-X1L2MKTHPT`). The consent gate appears **only where a choice is required** — EEA,
+  UK, Switzerland — where nothing is fetched or stored until the visitor presses
+  **Allow analytics**. Elsewhere the page is measured without a notice. The country
+  comes from `functions/api/geo.js`, which reports Cloudflare's own view of the
+  connection; no third-party lookup is involved. An unknown country or a failing geo
+  lookup falls back to asking. No other analytics or ad scripts are present, and no
+  Cloudflare Web Analytics beacon is installed.
 - Deployment facts, verification evidence and the open items live in
   [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).

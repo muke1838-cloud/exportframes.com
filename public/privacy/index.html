@@ -46,9 +46,12 @@
 
       <h2>Analytics</h2>
       <p>
-        This site uses Google Analytics 4 to count page views. It is off until you allow it: the tag is not even downloaded until you press <strong>Allow analytics</strong> on the notice at the bottom of the page. If you decline, nothing loads and no analytics cookie is set.
+        This site uses Google Analytics 4 to count page views. In the places where the law requires a choice before this kind of measurement — the European Economic Area, the United Kingdom and Switzerland — the tag is not downloaded and no analytics cookie is written until you press <strong>Allow analytics</strong> on the notice at the bottom of the page; if you decline, nothing loads at all. Visitors elsewhere are measured without a notice, because no prior consent is required there.
       </p>
-      <p>When it is allowed, Google Analytics 4 records:</p>
+      <p>
+        Deciding which of the two applies is done by asking this site's own <code>/api/geo</code> endpoint, which reports the country Cloudflare already sees for your connection. Nothing is sent to a third party to make that decision, and the country is kept only for the length of your visit.
+      </p>
+      <p>Where measurement runs, Google Analytics 4 records:</p>
       <ul>
         <li>the page you viewed, with the address stripped of any query string;</li>
         <li>where the visit came from — a referring site or a search engine;</li>
@@ -62,7 +65,7 @@
         In the Google Analytics property behind this site, event data is kept for 2 months and user data for 14 months (read from the property settings on 18 September 2026). Google's own handling of that data is described in the Google Privacy Policy.
       </p>
       <p>
-        Your answer is remembered in this browser's local storage — a plain value, not a cookie — so you are not asked again. Clearing this site's data in your browser makes the notice appear once more.
+        Your answer, if you are asked for one, is remembered in this browser's local storage — a plain value, not a cookie — so you are not asked again. Clearing this site's data in your browser makes the notice appear once more.
       </p>
 
       <h2>Advertising</h2>
