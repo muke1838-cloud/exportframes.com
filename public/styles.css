@@ -363,3 +363,38 @@ figcaption a {
 
 .foot .sitenav { margin-bottom: 10px; }
 .foot .sitenav a { color: var(--muted); }
+
+/* Analytics consent bar: present, dismissible, and out of the way of the tool */
+.consent {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #141311;
+  color: #f7f5ef;
+  font-size: 0.85rem;
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+.consent p { margin: 0; max-width: 52ch; color: #e8e4da; }
+.consent a { color: #fffdf8; }
+.consent-actions { display: flex; gap: 8px; flex: 0 0 auto; }
+.consent .btn {
+  width: auto;
+  padding: 8px 12px;
+  min-height: 40px;
+  font-size: 0.85rem;
+}
+.consent .btn.ghost {
+  background: transparent;
+  color: #f7f5ef;
+  border: 1px solid #6b665c;
+}
+.consent .btn.ghost:hover { background: #22201c; }
+body.has-consent .page { padding-bottom: 104px; }

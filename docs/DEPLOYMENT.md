@@ -50,6 +50,45 @@ is named. Anything still open is listed at the end.
      `warnings 0`, `submitted 4`, `indexed 0`. Google fetched it; nothing is indexed yet and none is
      claimed.
 
+## Measurement: GA4, installed 2026-09-18
+
+The owner changed the measurement rule for this site on 2026-09-18 from "Cloudflare Web Analytics
+only" to **GA4 only**. What was done:
+
+- **Property created through the Analytics Admin API** under the `工具站` account
+  (`accounts/407092253`): property `554799614` "Export Frames", `Asia/Shanghai`, `USD`,
+  `TECHNOLOGY` — the same shape as `My Chord Finder` and `WatchToText`. Web data stream
+  `properties/554799614/dataStreams/15797880124` for `https://exportframes.com`, measurement ID
+  **`G-X1L2MKTHPT`**.
+- Retention was read back for all three properties in the account: event data `TWO_MONTHS`,
+  user data `FOURTEEN_MONTHS`, `resetUserDataOnNewActivity: true`. The new property matches; nothing
+  was changed.
+- **`public/analytics.js`** carries the tag, following the pattern in `chord-tools/src/analytics.ts`:
+  consent gate first, tag loaded only after **Allow analytics**, decline remembered in local storage,
+  `allow_google_signals: false`, `allow_ad_personalization_signals: false`, and `page_location`
+  reduced to origin + path so query strings are never sent.
+  One deliberate difference from chord-tools: a visitor who already allowed on an earlier visit is
+  measured immediately on later page loads instead of waiting for a first interaction or an 8 s
+  timeout.
+- The tool itself is untouched: `app.js` is still byte-identical to the local build
+  (`md5 337e8058cb4347e83de6d61385f7599e`), and no funnel events were added, so this site measures
+  page views only. The privacy page was rewritten to describe GA4, its cookies, its retention and the
+  consent behaviour before this shipped.
+
+Verified in Chrome against the built site (2026-09-18):
+
+| Check | Result |
+| --- | --- |
+| First visit, no choice made yet | Consent bar shown; **0** requests to `googletagmanager.com` / `google-analytics.com`; **0** cookies |
+| After "No thanks" | Still 0 Google requests, 0 cookies; the bar does not return after reload |
+| After "Allow analytics" | `GET gtag/js?id=G-X1L2MKTHPT` then `POST https://www.google-analytics.com/g/collect?v=2&tid=G-X1L2MKTHPT…`; `_ga` and `_ga_X1L2MKTHPT` then appear |
+| Query string | Loading `/?utm_source=should-not-appear` produced one collect hit with `dl=http://…/` — no query string in the payload |
+| Returning allowed visitor | No bar, tag loads on page load |
+| Tool with the bar on screen | 6 stills, PNG download 53,243 bytes, valid signature |
+
+The Google Analytics dashboard itself was not inspected; the claims above come from the network
+traffic the page produced, not from reports.
+
 ## Mail records (added 2026-09-18)
 
 Following the working pattern on `findkeybpm.com`, which receives through Spaceship forwarding
@@ -107,7 +146,6 @@ returned the correct `<title>`, and directly against both Cloudflare anycast add
 
 | Item | Why it is open | What closes it |
 | --- | --- | --- |
-| Cloudflare Web Analytics | Neither API token in `~/.hermes/.env` may create a Web Analytics site (`POST /accounts/{id}/rum/site_info` → `Authentication error`). The five existing sites are bound to other zones; reusing one of their tokens here would file this site's page views under another site. | Create the site for this zone in the dashboard (Web Analytics → Add a site → `exportframes.com`), **or** supply a token with Account → Web Analytics → Edit. The tag/token can then be read back through the RUM-read token that is already on this machine, and the beacon goes into the four pages. |
 | `contact@exportframes.com` | Spaceship's email *forwarding* has no public API (`docs.spaceship.dev` covers domains, DNS and contacts; alias management is dashboard-only), so the alias itself cannot be created from here. | Create the alias at Spaceship (domain → Email Forwarding → `contact@exportframes.com` → destination mailbox). The DNS side is already done, so nothing else is needed before the address is published. |
 | `www` → apex redirect | A Redirect Rule needs zone ruleset permission, which neither token has. `_redirects` in Pages cannot match on hostname, so it cannot do this either. Currently both hostnames serve the site and the canonical tag points at the apex. | A token with Zone → Rules, or one redirect rule in the dashboard. |
 | Git auto-deploy | Cloudflare's GitHub App installation for this account is broken (error `8000011`), so pushes do not build by themselves. | Reinstall the Cloudflare Pages GitHub App, then switch the project's source to the repo. |

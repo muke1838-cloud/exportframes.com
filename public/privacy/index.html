@@ -44,6 +44,27 @@
         This site is static files served by Cloudflare Pages. As with any host or content delivery network, delivering a page to you involves processing the request itself, which means your IP address, your browser's user agent, and the URL you asked for are handled by Cloudflare as part of normal operation. That is the host doing its job, not this site collecting a profile. Cloudflare publishes what it processes in its own privacy policy: <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener nofollow">cloudflare.com/privacypolicy</a>.
       </p>
 
+      <h2>Analytics</h2>
+      <p>
+        This site uses Google Analytics 4 to count page views. It is off until you allow it: the tag is not even downloaded until you press <strong>Allow analytics</strong> on the notice at the bottom of the page. If you decline, nothing loads and no analytics cookie is set.
+      </p>
+      <p>When it is allowed, Google Analytics 4 records:</p>
+      <ul>
+        <li>the page you viewed, with the address stripped of any query string;</li>
+        <li>where the visit came from — a referring site or a search engine;</li>
+        <li>an approximate location derived from your connection, plus browser, operating system, and device type;</li>
+        <li>whether the same browser has visited before, using two first-party cookies, <code>_ga</code> and <code>_ga_&lt;container-id&gt;</code>. Google's documentation describes those as lasting up to two years, though browsers cap them (Chrome at 400 days, Safari at 7 days for visitors who do not return).</li>
+      </ul>
+      <p>
+        This site disables Google Signals and ad-personalisation signals for this measurement, so what is collected here is not used to personalise advertising on this site, and the reported page address never carries your query string.
+      </p>
+      <p>
+        In the Google Analytics property behind this site, event data is kept for 2 months and user data for 14 months (read from the property settings on 18 September 2026). Google's own handling of that data is described in the Google Privacy Policy.
+      </p>
+      <p>
+        Your answer is remembered in this browser's local storage — a plain value, not a cookie — so you are not asked again. Clearing this site's data in your browser makes the notice appear once more.
+      </p>
+
       <h2>Advertising</h2>
       <p>
         This tool is free, and the plan is to keep it free by showing third-party ads on the written sections of the page. <strong>No ad code is running on this site today.</strong> Before any ads are switched on, this page will be updated to name the ad provider, link to that provider's privacy policy, and state plainly what those ads collect — ad networks usually use cookies or device identifiers and may personalise ads from activity across other sites.
@@ -70,5 +91,6 @@
       <p>Runs in your browser. No account. Your video is never uploaded.</p>
     </footer>
   </div>
+  <script src="/analytics.js" defer></script>
 </body>
 </html>

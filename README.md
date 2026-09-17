@@ -21,9 +21,13 @@ project `exportframes`).
 ## Layout
 
 ```
-public/          static files, copied to dist/ as-is
+public/            static files, copied to dist/ as-is
+public/analytics.js  GA4 behind a consent gate (no tag and no cookie before consent)
 scripts/build.mjs  copies public/ → dist/ and regenerates sitemap.xml
 ```
+
+`app.js` is the frame extractor and is byte-identical to the local build it came from —
+measurement deliberately sits in its own file so the tool itself is untouched.
 
 `/sitemap.xml` is not hand-maintained: `scripts/build.mjs` walks every
 `index.html` under `public/`, so adding a page adds its URL on the next build.
@@ -67,9 +71,10 @@ to that project, and zone-level **Always Use HTTPS** is on.
   stylesheet were touched when it moved here.
 - Decoding is whatever the visitor's browser already supports. The tool reports a
   clear error for containers it cannot play instead of guessing.
-- No analytics or ad scripts are on the site yet. Cloudflare Web Analytics is the
-  measurement this project intends to use, but the API tokens available here cannot
-  create a Web Analytics site, so the beacon is not installed. See
-  [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the exact state.
+- Measurement is Google Analytics 4 only (`public/analytics.js`, measurement ID
+  `G-X1L2MKTHPT`). It is behind an explicit consent gate: until the visitor presses
+  **Allow analytics**, no Google script is fetched and no cookie is written. Declining
+  is remembered and loads nothing. No other analytics or ad scripts are present, and
+  no Cloudflare Web Analytics beacon is installed.
 - Deployment facts, verification evidence and the open items live in
   [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
