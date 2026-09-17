@@ -40,6 +40,15 @@ is named. Anything still open is listed at the end.
    `owners: ["muke1838@gmail.com"]`. The TXT record
    (`google-site-verification=VmyFh6myQGkz6UsdbAqV5p-xASvHo7pY3PBr-r5arWk`) lives in the zone with a
    120 s TTL and is visible through Google's and Cloudflare's public resolvers.
+   - Verifying alone did **not** make the property appear in Search Console: `sites.list` still had 11
+     properties and the sitemap call returned `403 … insufficient permission for site`. The property
+     appeared only after `PUT /webmasters/v3/sites/sc-domain%3Aexportframes.com` (the Search Console
+     API's *add site* call) returned `204`.
+   - Sitemap submitted with `PUT /webmasters/v3/sites/sc-domain%3Aexportframes.com/sitemaps/{feed}` →
+     `204`. Read-back at 2026-09-17T17:40Z:
+     `lastSubmitted 17:40:34Z`, `lastDownloaded 17:40:35Z`, `isPending false`, `errors 0`,
+     `warnings 0`, `submitted 4`, `indexed 0`. Google fetched it; nothing is indexed yet and none is
+     claimed.
 
 ## Verified after launch
 
