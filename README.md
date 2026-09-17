@@ -67,5 +67,9 @@ to that project, and zone-level **Always Use HTTPS** is on.
   stylesheet were touched when it moved here.
 - Decoding is whatever the visitor's browser already supports. The tool reports a
   clear error for containers it cannot play instead of guessing.
-- Cloudflare Web Analytics is the only measurement on this site. No other analytics
-  or ad scripts are present.
+- No analytics or ad scripts are on the site yet. Cloudflare Web Analytics is the
+  measurement this project intends to use, but the API tokens available here cannot
+  create a Web Analytics site, so the beacon is not installed. See
+  [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the exact state.
+- Deployment facts, verification evidence and the open items live in
+  [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
