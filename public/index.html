@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Extract Frames from Video</title>
+  <meta name="description" content="Extract frames from a video in your browser. Drop an MP4, MOV, MKV, WEBM, or AVI, pick an interval or scrub the timeline, download PNG or JPG. The file never leaves this device.">
+  <link rel="canonical" href="https://exportframes.com/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="mast">
+      <p class="kicker">Browser-only · one file · no account</p>
+      <h1>Extract Frames from Video</h1>
+      <p class="lede">Drop a video, pull stills, download them. The file is decoded in this tab and is not sent anywhere.</p>
+    </header>
+
+    <section class="tool" aria-label="Extract frames tool">
+      <div id="drop" class="drop" tabindex="0" role="button" aria-controls="file" aria-label="Drop a video or choose a file">
+        <input id="file" type="file" accept="video/*,.mp4,.m4v,.mov,.mkv,.webm,.avi">
+        <div id="drop-empty">
+          <p class="drop-title">Drop a video or choose a file</p>
+          <p class="drop-hint">MP4, MOV, MKV, WEBM, AVI · local decode only</p>
+        </div>
+        <div id="drop-file" hidden>
+          <p id="file-name" class="file-name"></p>
+          <p id="file-sub" class="drop-hint"></p>
+        </div>
+      </div>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+
+      <div id="workspace" class="workspace" hidden>
+        <div class="player-wrap">
+          <video id="player" playsinline controls preload="metadata"></video>
+        </div>
+        <dl id="meta" class="meta"></dl>
+
+        <fieldset class="mode">
+          <legend>Extract method</legend>
+          <label class="choice">
+            <input type="radio" name="mode" value="interval" checked>
+            <span>Every N seconds</span>
+          </label>
+          <label class="choice">
+            <input type="radio" name="mode" value="timeline">
+            <span>Scrub the timeline, capture one frame</span>
+          </label>
+        </fieldset>
+
+        <div id="interval-panel" class="panel">
+          <p class="label">Interval</p>
+          <div class="chips" role="radiogroup" aria-label="Seconds between frames">
+            <label class="chip"><input type="radio" name="interval" value="1" checked> 1 s</label>
+            <label class="chip"><input type="radio" name="interval" value="2"> 2 s</label>
+            <label class="chip"><input type="radio" name="interval" value="5"> 5 s</label>
+            <label class="chip"><input type="radio" name="interval" value="10"> 10 s</label>
+            <label class="chip"><input type="radio" name="interval" value="30"> 30 s</label>
+          </div>
+          <p id="estimate" class="estimate"></p>
+        </div>
+
+        <div id="timeline-panel" class="panel" hidden>
+          <label class="scrub-label" for="scrub">Playhead</label>
+          <div class="scrub-row">
+            <input id="scrub" type="range" min="0" max="0" step="any" value="0">
+            <span id="scrub-time" class="num">00:00.000</span>
+          </div>
+          <div class="btn-row">
+            <button type="button" id="step-back" class="btn ghost">Previous frame</button>
+            <button type="button" id="step-fwd" class="btn ghost">Next frame</button>
+            <button type="button" id="capture" class="btn">Capture this frame</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <p class="label">Still format</p>
+          <div class="chips" role="radiogroup" aria-label="Image format">
+            <label class="chip"><input type="radio" name="format" value="image/png" checked> PNG</label>
+            <label class="chip"><input type="radio" name="format" value="image/jpeg"> JPG</label>
+          </div>
+          <div id="jpg-quality" class="quality" hidden>
+            <label for="quality">JPG quality <span id="quality-val" class="num">0.85</span></label>
+            <input id="quality" type="range" min="0.60" max="0.95" step="0.05" value="0.85">
+          </div>
+        </div>
+
+        <div class="btn-row primary-row">
+          <button type="button" id="extract" class="btn">Extract frames</button>
+          <button type="button" id="cancel" class="btn ghost" hidden>Cancel</button>
+          <button type="button" id="replace" class="btn ghost">Choose another video</button>
+        </div>
+
+        <div id="progress-wrap" class="progress-wrap" hidden>
+          <progress id="progress" value="0" max="1"></progress>
+          <p id="progress-text" class="estimate"></p>
+        </div>
+      </div>
+
+      <section id="results" class="results" hidden>
+        <div class="result-bar">
+          <label class="choice tight">
+            <input type="checkbox" id="select-all" checked>
+            <span>Select all</span>
+          </label>
+          <p id="sel-count" class="estimate"></p>
+          <button type="button" id="zip" class="btn">Download selected ZIP</button>
+          <button type="button" id="clear-frames" class="btn ghost">Clear stills</button>
+        </div>
+        <div id="grid" class="grid"></div>
+      </section>
+    </section>
+
+    <article class="copy">
+      <h2>How to use this page</h2>
+      <ol>
+        <li>Drop one local video, or choose it from the file picker.</li>
+        <li>Read the size, duration, and any frame rate this page could parse from the file.</li>
+        <li>Either take stills on a 1 / 2 / 5 / 10 / 30 second interval, or scrub the playhead and capture a single frame.</li>
+        <li>Pick PNG or JPG (JPG quality applies to the next extract or capture, not to stills already on screen).</li>
+        <li>Tick the frames you want. Download one image, or a ZIP of the selection.</li>
+      </ol>
+
+      <h2>What this video frame extractor will and will not do</h2>
+      <p>
+        This page is a <strong>video frame extractor</strong> for a single file. It draws the current decoded picture onto a canvas and saves that picture. It does not upload the video, open an account, keep a history, watermark the stills, or convert a file the browser cannot decode into a different codec.
+      </p>
+      <p>
+        Interval mode is the direct way to turn a <strong>video to frames</strong> at a steady spacing. Timeline mode is for grabbing one still at a time. Both stay on this page.
+      </p>
+
+      <h2>Supported containers — what the browser must be able to decode</h2>
+      <p>
+        You can point this page at MP4, MOV, MKV, WEBM, or AVI. That is the list of containers it will <em>attempt</em>. Decode is whatever this browser already ships. This page does not bundle FFmpeg and does not send the file to a converter.
+      </p>
+      <p>
+        Measured in Chrome on this Mac, 17 Sep 2026, with 6-second 640×360 test clips (10 fps):
+      </p>
+      <ul>
+        <li><strong>MP4 (H.264)</strong> — decoded. Sample table reported 10 fps and 60 frames. Interval extract produced 6 PNG stills.</li>
+        <li><strong>MOV (H.264)</strong> — decoded. Same clip in a QuickTime container.</li>
+        <li><strong>WEBM (VP9)</strong> — decoded.</li>
+        <li><strong>MKV (H.264)</strong> — decoded on this Chrome build. Other MKV codecs are untested here and may still fail.</li>
+        <li><strong>AVI (MPEG-4)</strong> — refused with <code>src not supported</code>. The page still read 640×360, 10 fps, and 60 frames from the AVI header and did not emit stills or swap in another file.</li>
+      </ul>
+      <p>
+        HEVC / H.265, Safari, and Firefox were not in that run. If this browser cannot paint a frame, you get an error on this page — not a substitute image, and not a silent “success”.
+      </p>
+
+      <h2>Limits (chosen on this page, not a browser spec)</h2>
+      <ul>
+        <li>One video at a time. There is no multi-file batch.</li>
+        <li>File size cap: <strong>200&nbsp;MB</strong>. Larger files are refused so this tab is less likely to run out of memory.</li>
+        <li>Interval runs stop at <strong>300 stills</strong>. If 1-second spacing would exceed that, choose a longer interval or capture frames on the timeline.</li>
+        <li>Stills are the displayed resolution of the decoded video (<code>videoWidth</code> × <code>videoHeight</code>), not a claimed 4K pipeline I have not measured here.</li>
+        <li>Frame rate and total frame count are shown when the container metadata has them (MP4 sample table, WebM/MKV track, or AVI header). If those fields are missing, the page writes “Not in file metadata” instead of inventing 30&nbsp;fps.</li>
+      </ul>
+
+      <h2>Privacy</h2>
+      <p>
+        The file is read with the browser file API and played from a local object URL. Closing or refreshing the tab drops it. There is no login, no cookie wall, and no remote encode step on this page.
+      </p>
+
+      <h2>FAQ</h2>
+      <h3>Can I extract frames from video without uploading?</h3>
+      <p>Yes. Choose a local file. This tab decodes it. Nothing is posted to a server by this page.</p>
+
+      <h3>How do I export frames from video as a ZIP?</h3>
+      <p>Run an interval extract or capture frames on the timeline, leave the ones you want ticked, then use <strong>Download selected ZIP</strong>. Each still is also a separate download link.</p>
+
+      <h3>Does video to JPG keep the original quality?</h3>
+      <p>
+        JPG is lossy. The slider is the browser <code>canvas.toBlob</code> quality (0.60–0.95). PNG keeps the pixels the canvas had, which are the decoded and displayed frame, not a guaranteed bit-exact copy of a YUV source.
+      </p>
+
+      <h3>Why did my MKV or AVI fail?</h3>
+      <p>
+        A readable container is not the same as a playable codec. This <strong>frame extractor</strong> reports a decode failure when <code>&lt;video&gt;</code> cannot paint a frame. Re-wrap or re-encode to H.264 MP4 or VP9 WebM on your machine if you need that file to work here.
+      </p>
+
+      <h3>Will this work on a phone?</h3>
+      <p>
+        The controls are sized for a phone-width window, and stills wrap in a two-column sheet. A long 4K file can still exhaust a mobile tab; that is a memory limit, not a layout one. Use a shorter clip or a longer interval if the phone warns you.
+      </p>
+    </article>
+
+    <footer class="foot">
+      <nav class="sitenav" aria-label="Site">
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+      <p>Runs in your browser. No account. Your video is never uploaded.</p>
+    </footer>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>

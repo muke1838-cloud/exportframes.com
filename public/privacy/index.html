@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy | Export Frames</title>
+  <meta name="description" content="What happens to your video (nothing leaves your device), what this site stores (nothing), and what the future ads will mean.">
+  <link rel="canonical" href="https://exportframes.com/privacy/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="sitehead">
+      <a class="brand" href="/">Export Frames</a>
+      <nav class="sitenav" aria-label="Site">
+        <a href="/">Tool</a>
+        <a href="/about/">About</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+    </header>
+
+    <article class="doc">
+      <h1>Privacy</h1>
+      <p class="lede">Short version: your video never leaves your device, and this site keeps no record of you.</p>
+
+      <h2>Your video file</h2>
+      <p>
+        The <a href="/">frame extractor</a> opens a file you pick with the browser's file chooser or by dragging it onto the page. Your browser decodes that file inside the tab and draws each captured frame onto a canvas in the same tab. The page contains no upload request: the file is not posted to this site, to a third party, or to any API. Close or refresh the tab and the browser drops the file.
+      </p>
+
+      <h2>What you download</h2>
+      <p>
+        Captured stills and the ZIP archive are assembled in your browser's memory and saved through your browser's normal download flow. They stay on your device.
+      </p>
+
+      <h2>Accounts, cookies, history</h2>
+      <p>
+        There is no sign-up, no login, and no stored history of what you extracted. This site sets no first-party cookies of its own and keeps no server-side record of the files you open.
+      </p>
+
+      <h2>Hosting</h2>
+      <p>
+        This site is static files served by Cloudflare Pages. As with any host or content delivery network, delivering a page to you involves processing the request itself, which means your IP address, your browser's user agent, and the URL you asked for are handled by Cloudflare as part of normal operation. That is the host doing its job, not this site collecting a profile. Cloudflare publishes what it processes in its own privacy policy: <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener nofollow">cloudflare.com/privacypolicy</a>.
+      </p>
+
+      <h2>Advertising</h2>
+      <p>
+        This tool is free, and the plan is to keep it free by showing third-party ads on the written sections of the page. <strong>No ad code is running on this site today.</strong> Before any ads are switched on, this page will be updated to name the ad provider, link to that provider's privacy policy, and state plainly what those ads collect — ad networks usually use cookies or device identifiers and may personalise ads from activity across other sites.
+      </p>
+
+      <h2>Children and sensitive data</h2>
+      <p>
+        This site is a general-purpose file utility. It is not directed at children, and it asks for no personal information at all, so there is nothing here for a visitor to hand over beyond the video they quietly keep to themselves.
+      </p>
+
+      <h2>Questions</h2>
+      <p>
+        Privacy questions go through the <a href="/contact/">contact page</a>. When something in this policy changes, the change will be described on this page rather than applied silently.
+      </p>
+    </article>
+
+    <footer class="foot">
+      <nav class="sitenav" aria-label="Site">
+        <a href="/">Home</a>
+        <a href="/about/">About</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+      <p>Runs in your browser. No account. Your video is never uploaded.</p>
+    </footer>
+  </div>
+</body>
+</html>

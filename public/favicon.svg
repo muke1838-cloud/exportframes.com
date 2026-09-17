@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Export Frames">
+  <rect width="32" height="32" rx="7" fill="#141311"/>
+  <rect x="8.75" y="8.75" width="14.5" height="14.5" rx="2" fill="none" stroke="#f7f5ef" stroke-width="1.7"/>
+  <path d="M13.4 12.3l7.2 3.7-7.2 3.7z" fill="#f7f5ef"/>
+</svg>
