@@ -144,9 +144,15 @@ returned the correct `<title>`, and directly against both Cloudflare anycast add
 
 ## Still open
 
-| Item | Why it is open | What closes it |
-| --- | --- | --- |
-| `contact@exportframes.com` | Spaceship's email *forwarding* has no public API (`docs.spaceship.dev` covers domains, DNS and contacts; alias management is dashboard-only), so the alias itself cannot be created from here. | Create the alias at Spaceship (domain → Email Forwarding → `contact@exportframes.com` → destination mailbox). The DNS side is already done, so nothing else is needed before the address is published. |
+Nothing is currently blocked on the owner.
+
+## Mail: contact@exportframes.com — configured and delivery-tested
+
+- Records live in the Cloudflare zone (see the table above).
+- The forwarding rule was created in the Spaceship dashboard (Domain Manager → `exportframes.com` → Email forwarding → alias `contact` → destination `muke1838@gmail.com`), the same mechanism `findkeybpm.com` uses. Spaceship exposes no API for aliases.
+- **End-to-end delivery was tested, not assumed**: a message was sent from `contact@findkeybpm.com` through Resend (id `01a0b09f-4d39-70ed-b289-ecb8a8588ead`) to `contact@exportframes.com`, and the Gmail API then found it in the destination inbox with header `Delivered-To: muke1838@gmail.com` (received Thu, 17 Sep 2026 18:27:05 +0000). Only after that did the contact page publish the address.
+- Cloudflare's zone-level **Email Address Obfuscation** (Scrape Shield) rewrote the `mailto:` link into `/cdn-cgi/l/email-protection#…` and rendered `[email protected]` for non-JavaScript visitors. The address is now wrapped in `<!--email_off-->` … `<!--/email_off-->`, the documented opt-out, so the served HTML carries the plain address like `findkeybpm.com` does.
+- Still not done: **sending as** the address (Brevo SMTP + Gmail send-as on findkeybpm was the pattern). Replying currently comes from the Gmail account.
 | `www` → apex redirect | A Redirect Rule needs zone ruleset permission, which neither token has. `_redirects` in Pages cannot match on hostname, so it cannot do this either. Currently both hostnames serve the site and the canonical tag points at the apex. | A token with Zone → Rules, or one redirect rule in the dashboard. |
 | Git auto-deploy | Cloudflare's GitHub App installation for this account is broken (error `8000011`), so pushes do not build by themselves. | Reinstall the Cloudflare Pages GitHub App, then switch the project's source to the repo. |
 
