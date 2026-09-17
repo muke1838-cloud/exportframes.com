@@ -14,9 +14,14 @@ const publicDir = join(root, "public");
 const distDir = join(root, "dist");
 const ORIGIN = "https://exportframes.com";
 
+// dist/ is not tracked, so ask git about the source file this page was copied from.
+function sourcePathFor(pageFile) {
+  return join("public", relative(distDir, pageFile));
+}
+
 async function gitDate(file) {
   try {
-    const { stdout } = await run("git", ["log", "-1", "--format=%cs", "--", relative(root, file)], {
+    const { stdout } = await run("git", ["log", "-1", "--format=%cs", "--", sourcePathFor(file)], {
       cwd: root,
     });
     const value = stdout.trim();
