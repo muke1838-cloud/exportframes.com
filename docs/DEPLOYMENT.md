@@ -169,7 +169,40 @@ Nothing is currently blocked on the owner.
 - The forwarding rule was created in the Spaceship dashboard (Domain Manager → `exportframes.com` → Email forwarding → alias `contact` → destination `muke1838@gmail.com`), the same mechanism `findkeybpm.com` uses. Spaceship exposes no API for aliases.
 - **End-to-end delivery was tested, not assumed**: a message was sent from `contact@findkeybpm.com` through Resend (id `01a0b09f-4d39-70ed-b289-ecb8a8588ead`) to `contact@exportframes.com`, and the Gmail API then found it in the destination inbox with header `Delivered-To: muke1838@gmail.com` (received Thu, 17 Sep 2026 18:27:05 +0000). Only after that did the contact page publish the address.
 - Cloudflare's zone-level **Email Address Obfuscation** (Scrape Shield) rewrote the `mailto:` link into `/cdn-cgi/l/email-protection#…` and rendered `[email protected]` for non-JavaScript visitors. The address is now wrapped in `<!--email_off-->` … `<!--/email_off-->`, the documented opt-out, so the served HTML carries the plain address like `findkeybpm.com` does.
-- Still not done: **sending as** the address (Brevo SMTP + Gmail send-as on findkeybpm was the pattern). Replying currently comes from the Gmail account.
+- Still not done: **sending as** the address. Replying currently comes from the Gmail account.
+
+### Sending as contact@exportframes.com — in progress (2026-09-18)
+
+Goal: a reply leaves Gmail with `contact@exportframes.com` in the From line, the way
+`findkeybpm.com` does it. What the sibling site actually uses was read from Gmail's
+**Send mail as** page and from public DNS:
+
+| Piece | findkeybpm.com | exportframes.com now |
+| --- | --- | --- |
+| Gmail alias | `contact@findkeybpm.com`, relay `smtp-relay.brevo.com:587`, TLS | not created yet |
+| SPF | `v=spf1 include:spf.efwd.spaceship.net ~all` | same |
+| Brevo code (TXT @) | `brevo-code:62d3a95592f458746154ffcf5c2c4eac` | added, same value (account-level) |
+| DKIM 1 (CNAME) | `brevo1._domainkey` → `b1.findkeybpm-com.dkim.brevo.com` | `brevo1._domainkey` → `b1.exportframes-com.dkim.brevo.com`, added |
+| DKIM 2 (CNAME) | `brevo2._domainkey` → `b2.findkeybpm-com.dkim.brevo.com` | `brevo2._domainkey` → `b2.exportframes-com.dkim.brevo.com`, added |
+| DMARC (TXT _dmarc) | `v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com` | added, same value |
+
+State of the Brevo side: `exportframes.com` is added in the Brevo account (Try3AM) through the
+"Add domain" wizard, set up as **Manual** so the records are written here rather than letting Brevo
+into the DNS account. Brevo's own check reported **DKIM 2 ✅ and DMARC ✅** and **DKIM 1 mismatch** —
+that check ran before the correct `brevo1` name was used (the first attempt wrote `brevo._domainkey`,
+which was wrong and has been deleted). The CNAMEs are present in Cloudflare's authoritative zone but
+public resolvers were still serving the cached "no such record" answer minutes later, so Brevo's
+re-check has to wait for that to expire.
+
+Also note for whoever continues: Resend is **not** an option without paying — the account is at its
+3-domain limit and adding a fourth needs the $20/month Pro plan. That was left alone.
+
+Remaining steps, in order: re-run **Verify records** / **Authenticate domain** in Brevo; copy the
+SMTP key from Brevo → SMTP & API; add the alias in Gmail (Send mail as → `contact@exportframes.com`,
+`smtp-relay.brevo.com`, port 587, TLS) and click the confirmation link that arrives at
+`contact@exportframes.com` (it forwards to the Gmail inbox, so the link can be read from the Gmail
+API); then send a real message from the alias and read the `Authentication-Results` header to prove
+SPF/DKIM.
 | `www` → apex redirect | A Redirect Rule needs zone ruleset permission, which neither token has. `_redirects` in Pages cannot match on hostname, so it cannot do this either. Currently both hostnames serve the site and the canonical tag points at the apex. | A token with Zone → Rules, or one redirect rule in the dashboard. |
 | Git auto-deploy | Cloudflare's GitHub App installation for this account is broken (error `8000011`), so pushes do not build by themselves. | Reinstall the Cloudflare Pages GitHub App, then switch the project's source to the repo. |
 
