@@ -190,9 +190,9 @@ State of the Brevo side: `exportframes.com` is added in the Brevo account (Try3A
 "Add domain" wizard, set up as **Manual** so the records are written here rather than letting Brevo
 into the DNS account. Brevo's own check reported **DKIM 2 ✅ and DMARC ✅** and **DKIM 1 mismatch** —
 that check ran before the correct `brevo1` name was used (the first attempt wrote `brevo._domainkey`,
-which was wrong and has been deleted). The CNAMEs are present in Cloudflare's authoritative zone but
-public resolvers were still serving the cached "no such record" answer minutes later, so Brevo's
-re-check has to wait for that to expire.
+which was wrong and has been deleted). Both DKIM CNAMEs **now resolve from public DNS**
+(re-checked 2026-09-19 03:40 CST), so Brevo's re-check should pass; it had been reading a cached
+"no such record" answer while the records were minutes old.
 
 Also note for whoever continues: Resend is **not** an option without paying — the account is at its
 3-domain limit and adding a fourth needs the $20/month Pro plan. That was left alone.
